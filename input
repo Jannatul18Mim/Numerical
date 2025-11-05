@@ -1,0 +1,13 @@
+Enter number of unknowns: 3
+Enter row 1 in the format (ax + by + cz = d)
+
+# User input (auto)
+# N = int(input("Enter number of unknowns: "))
+
+# arr = []
+# for i in range(N):
+#     arr.append(list(map(int, input().split())))
+
+# User input (manual)
+N = 3
+arr = [[2, 1, -1, 8], [-3, -1, 2, -11], [-2, 1, 2, -3]]

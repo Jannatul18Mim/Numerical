@@ -1,0 +1,60 @@
+# Gaussian Elimination with user input
+
+def print_arr(arr):
+    """Print the matrix nicely."""
+    for row in arr:
+        print(row)
+    print()  # blank line for spacing
+
+def gaussian_elimination(N, arr):
+    # Forward elimination
+    for i in range(N):
+        # Normalize pivot row
+        for j in range(N, -1, -1):
+            arr[i][j] /= arr[i][i]
+        
+        # Eliminate rows below pivot
+        for j in range(i+1, N):
+            for k in range(N, -1, -1):
+                arr[j][k] -= arr[i][k] * arr[j][i]
+        
+        print(f"After eliminating column {i}:")
+        print_arr(arr)
+
+    # Back substitution
+    solve = [0 for _ in range(N)]
+    for i in range(N-1, -1, -1):
+        solve[i] = arr[i][N]
+        for k in range(i+1, N):
+            solve[i] -= arr[i][k] * solve[k]
+        # Pivot is already normalized, but divide just in case
+        solve[i] /= arr[i][i]
+    
+    print("Solution:", solve)
+
+# =========================
+# User input section
+# =========================
+
+# Get number of unknowns
+N = int(input("Enter number of unknowns: "))
+
+# Initialize augmented matrix
+arr = []
+
+# Get each row from user
+for i in range(N):
+    row_input = input(f"Enter row {i+1} coefficients and constant (space-separated): ")
+    # Convert input to list of floats
+    row = list(map(float, row_input.strip().split()))
+    if len(row) != N + 1:
+        print(f"Error: Row {i+1} must have {N+1} numbers (coefficients + constant).")
+        exit(1)
+    arr.append(row)
+
+# Show the original matrix
+print("\nAugmented Matrix:")
+print_arr(arr)
+
+# Run Gaussian elimination
+gaussian_elimination(N, arr)

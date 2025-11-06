@@ -1,0 +1,157 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from math import e, sin, cos
+
+# ===============================================================
+# a) Bisection Method to find root of f(x)
+# ===============================================================
+
+def f(x):
+    return e**(3.2*sin(x) - 0.5*cos(x))
+
+def bisection(f, a, b, estep=0.001, eabs=0.001):
+    if f(a)*f(b) > 0:
+        raise ValueError("f(a) and f(b) must have opposite signs")
+
+    data = []
+    iteration = 0
+
+    while (b - a)/2 > estep:
+        c = (a + b) / 2
+        fc = f(c)
+        iteration += 1
+        data.append([iteration, a, b, c, fc])
+
+        if abs(fc) < eabs:
+            break
+        if f(a)*fc < 0:
+            b = c
+        else:
+            a = c
+
+    print("\nBisection Method Results:")
+    print("Iter\t a\t\t b\t\t c\t\t f(c)")
+    for d in data:
+        print("{:d}\t{:.5f}\t{:.5f}\t{:.5f}\t{:.5f}".format(*d))
+    
+    plt.figure()
+    x = np.linspace(3, 4, 100)
+    plt.plot(x, f(x))
+    plt.axhline(0, color='r')
+    plt.title("Bisection Method Root Finding")
+    plt.xlabel('x'); plt.ylabel('f(x)')
+    plt.grid(True)
+    plt.show()
+
+bisection(f, 3, 4)
+
+# ===============================================================
+# b) Euler’s Method for IVP
+# ===============================================================
+
+def dy_dt(t, y):
+    return -y - 0.5 * e**(t/2) * sin(5*t) + 5*e**(t/2)*cos(5*t)
+
+def euler_method(h):
+    t0, y0 = 0, 0
+    t_values = [t0]
+    y_values = [y0]
+    t_end = 5
+    while t0 < t_end:
+        y0 = y0 + h * dy_dt(t0, y0)
+        t0 += h
+        t_values.append(t0)
+        y_values.append(y0)
+    return t_values, y_values
+
+plt.figure()
+for h in [0.1, 0.05, 0.01, 0.005, 0.001]:
+    t, y = euler_method(h)
+    plt.plot(t, y, label=f'h={h}')
+
+plt.title("Euler Method Approximation for IVP")
+plt.xlabel("t"); plt.ylabel("y(t)")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# ===============================================================
+# c) False Position Method for Submerged Depth
+# ===============================================================
+
+def g(x):
+    return x**4 - 0.165*x**3 + 2.993*x - 10
+
+def false_position(f, a, b, tol=1e-6):
+    fa = f(a)
+    fb = f(b)
+    if fa*fb > 0:
+        raise ValueError("Root not bracketed")
+
+    iteration = 0
+    while True:
+        c = b - fb*(b - a)/(fb - fa)
+        fc = f(c)
+        iteration += 1
+        if abs(fc) < tol:
+            break
+        if fa*fc < 0:
+            b, fb = c, fc
+        else:
+            a, fa = c, fc
+    print(f"False Position Root: x = {c:.6f} after {iteration} iterations")
+
+false_position(g, 0, 5)
+
+# ===============================================================
+# d) Simpson’s 3/8 Rule
+# ===============================================================
+
+def integrand(t):
+    return 200*np.log(140000/(140000 - 2100*t)) - 9.8*t
+
+def simpsons_38(f, a, b, n=6):
+    if n % 3 != 0:
+        raise ValueError("n must be multiple of 3 for 3/8 rule")
+    h = (b - a)/n
+    x = np.linspace(a, b, n+1)
+    y = f(x)
+    I = (3*h/8) * (y[0] + y[-1] + 3*sum(y[1:-1:3] + y[2:-1:3]) + 2*sum(y[3:-1:3]))
+    return I
+
+a, b = 8, 30
+result = simpsons_38(integrand, a, b, 6)
+print(f"\nSimpson’s 3/8 Rule Integration Result: {result:.6f}")
+
+# ===============================================================
+# e) Trapezoidal Rule and Error
+# ===============================================================
+
+def trapezoidal(f, a, b):
+    return (b - a)/2 * (f(a) + f(b))
+
+trap_result = trapezoidal(integrand, 8, 30)
+print(f"Trapezoidal Rule Result: {trap_result:.6f}")
+
+# ===============================================================
+# f) Polynomial Regression (fish length vs age)
+# ===============================================================
+
+# Example dummy dataset (replace with actual data if available)
+age = np.array([1, 2, 3, 4, 5, 6, 7])
+length = np.array([10, 20, 35, 50, 70, 90, 120])
+
+coeffs = np.polyfit(age, length, 2)
+poly_eq = np.poly1d(coeffs)
+
+plt.figure()
+plt.scatter(age, length, color='r', label='Data')
+plt.plot(age, poly_eq(age), label='Polynomial Fit')
+plt.xlabel("Age (years)")
+plt.ylabel("Length (mm)")
+plt.title("Polynomial Regression of Rui Fish Length vs Age")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+print(f"\nPolynomial Regression Equation: y = {coeffs[0]:.4f}x² + {coeffs[1]:.4f}x + {coeffs[2]:.4f}")

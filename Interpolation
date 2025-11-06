@@ -1,0 +1,73 @@
+# Forward Interpolation
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Example dataset (equally spaced x)
+x = np.array([1,2,3,4,5])
+y = np.array([1,8,27,64,125])  # y = x^3
+
+# Forward Difference Table
+n = len(x)
+diff = np.zeros((n,n))
+diff[:,0] = y
+for i in range(1,n):
+    for j in range(n-i):
+        diff[j,i] = diff[j+1,i-1]-diff[j,i-1]
+
+# Forward Interpolation formula (first term only)
+X = 2.5  # interpolate
+h = x[1]-x[0]
+u = (X-x[0])/h
+I = y[0] + u*diff[0,1]
+print("Forward Interpolation at x=2.5:", I)
+
+# Plot
+plt.scatter(x,y)
+plt.scatter(X,I,color='red',label='Interpolated')
+plt.plot(x,y,'b')
+plt.title("Forward Interpolation")
+plt.legend(); plt.show()
+
+# Backward Interpolation
+# Backward Difference Table
+diff[:,0] = y
+for i in range(1,n):
+    for j in range(i,n):
+        diff[j,i] = diff[j,i-1]-diff[j-1,i-1]
+
+X = 4.5
+u = (X-x[-1])/h
+I = y[-1] + u*diff[-1,1]
+print("Backward Interpolation at x=4.5:", I)
+
+# Plot
+plt.scatter(x,y)
+plt.scatter(X,I,color='red',label='Interpolated')
+plt.plot(x,y,'g')
+plt.title("Backward Interpolation")
+plt.legend(); plt.show()
+
+# Lagrange Interpolation
+def lagrange(x_data, y_data, X):
+    n = len(x_data)
+    result = 0
+    for i in range(n):
+        term = y_data[i]
+        for j in range(n):
+            if j != i:
+                term *= (X - x_data[j])/(x_data[i]-x_data[j])
+        result += term
+    return result
+
+x = np.array([1,2,3,4,5])
+y = np.array([1,8,27,64,125])
+X = 2.5
+I = lagrange(x,y,X)
+print("Lagrange Interpolation at x=2.5:", I)
+
+# Plot
+plt.scatter(x,y)
+plt.scatter(X,I,color='red',label='Interpolated')
+plt.plot(x,y,'m')
+plt.title("Lagrange Interpolation")
+plt.legend(); plt.show()
